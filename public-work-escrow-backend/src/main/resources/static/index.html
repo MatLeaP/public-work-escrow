@@ -1,311 +1,182 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Licitaciones Públicas - Publicación & Smart Contract</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlockData - Plataforma de Obras Públicas Descentralizadas</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 40px;
-        background-color: #f4f6f9;
-      }
-      .card {
-        background: white;
-        padding: 25px;
-        border-radius: 8px;
-        max-width: 650px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        margin: 0 auto;
-      }
-      .form-group {
-        margin-bottom: 15px;
-      }
-      label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-      }
-      input[type="file"],
-      input[type="text"],
-      input[type="number"] {
-        width: 100%;
-        padding: 8px;
-        box-sizing: border-box;
-      }
-      button {
-        background-color: #0056b3;
-        color: white;
-        border: none;
-        padding: 12px 18px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 15px;
-        width: 100%;
-      }
-      button:disabled {
-        background-color: #cccccc;
-        cursor: not-allowed;
-      }
-
-      /* Estilos para los Hitos */
-      .milestones-container {
-        border: 1px solid #ddd;
-        padding: 15px;
-        border-radius: 6px;
-        background: #fafafa;
-        margin-bottom: 20px;
-      }
-      .milestone-row {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 10px;
-        align-items: center;
-      }
-      .milestone-row input[type="text"] {
-        flex: 2;
-      }
-      .milestone-row input[type="number"] {
-        flex: 1;
-      }
-      .btn-add {
-        background-color: #28a745;
-        margin-top: 5px;
-        padding: 8px;
-      }
-      .btn-remove {
-        background-color: #dc3545;
-        width: auto;
-        padding: 8px 12px;
-      }
-
-      .result {
-        margin-top: 20px;
-        padding: 15px;
-        background: #e9ecef;
-        border-radius: 4px;
-        word-break: break-all;
-      }
-      .success-badge {
-        color: #28a745;
-        font-weight: bold;
-      }
-      .code-text {
-        font-family: monospace;
-        font-weight: bold;
-      }
+        .hero-img {
+            max-height: 400px;
+            object-fit: cover;
+        }
+        body {
+            background-color: #f8f9fa;
+        }
     </style>
-  </head>
-  <body>
-    <div class="card">
-      <h2>Anuncio de Obra Pública</h2>
-      <p>
-        Suba el pliego técnico en PDF y defina los hitos de entrega. El sistema
-        los registrará en IPFS y desplegará automáticamente el Smart Contract de
-        custodia.
-      </p>
+</head>
+<body>
 
-      <form id="uploadForm">
-        <div class="form-group">
-          <label for="workName">Nombre de la Obra:</label>
-          <input
-            type="text"
-            id="workName"
-            placeholder="Ej: Escuela N° 5 - Cimientos"
-            required
-          />
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark bg-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">🏗️ BlockData</a>
+            <span class="text-white-50">Escrow de Obra Pública con Blockchain & IPFS</span>
         </div>
+    </nav>
 
-        <div class="form-group">
-          <label for="pliegoFile">Pliego Técnico (PDF):</label>
-          <input
-            type="file"
-            id="pliegoFile"
-            accept="application/pdf"
-            required
-          />
-        </div>
-
-        <!-- SECCIÓN DINÁMICA DE HITOS -->
-        <div class="milestones-container">
-          <label>Hitos de Obra (Etapas de liberación de fondos por porcentaje):</label>
-          <div id="milestonesList">
-            <div class="milestone-row">
-              <input
-                type="text"
-                class="milestone-desc"
-                placeholder="Ej: Movimiento de suelos"
-                required
-              />
-              <input
-                type="number"
-                class="milestone-amount"
-                placeholder="Monto (USDT/ETH)"
-                step="0.01"
-                min="0"
-                required
-              />
-              <button
-                type="button"
-                class="btn-remove"
-                onclick="removeMilestone(this)"
-                style="display: none"
-              >
-                ✕
-              </button>
+    <!-- Contenido Principal -->
+    <div class="container my-5">
+        <div class="row align-items-center justify-content-center">
+            
+            <!-- Columna Izquierda: Imagen Institucional y Presentación -->
+            <div class="col-lg-7 mb-4 mb-lg-0 text-center text-lg-start">
+                <h1 class="display-5 fw-bold text-dark mb-3">Bienvenido a BlockData</h1>
+                <p class="lead text-muted mb-4">
+                    Plataforma corporativa para la gestión transparente, trazable y segura de licitaciones, contratos de obra pública y fondos en custodia mediante contratos inteligentes y almacenamiento descentralizado.
+                </p>
+                <div class="mb-4">
+                    <img src="/public-work-escrow-backend/src/main/resources/static/images/blockData_image.jpg" alt="BlockData Institutional" class="img-fluid rounded shadow-sm hero-img w-100">
+                </div>
             </div>
-          </div>
-          <button type="button" class="btn-add" id="addMilestoneBtn">
-            + Agregar Hito
-          </button>
+
+            <!-- Columna Derecha: Tarjeta de Login -->
+            <div class="col-lg-5">
+                <div class="card shadow border-0 p-4">
+                    <h3 class="card-title text-center mb-4 fw-semibold">Iniciar Sesión</h3>
+                    
+                    <div id="error-alert" class="alert alert-danger d-none" role="alert"></div>
+
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Correo Electrónico</label>
+                            <input type="email" class="form-control" id="email" required placeholder="ej: contacto@constructoraustral.com">
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="password" required placeholder="••••••">
+                        </div>
+                        <button type="submit" class="btn btn-dark w-100 py-2 fw-semibold shadow-sm">Ingresar al Sistema</button>
+                    </form>
+
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <small class="text-muted">¿Eres una nueva empresa constructora? <a href="#" class="text-decoration-none fw-semibold" data-bs-toggle="modal" data-bs-target="#registerModal">Regístrate aquí</a></small>
+                    </div>
+                </div>
+            </div>
+
         </div>
-
-        <button type="submit" id="submitBtn">
-          Publicar Licitación & Desplegar Contrato
-        </button>
-      </form>
-
-      <div id="resultBox" class="result" style="display: none">
-        <h3 class="success-badge">✔ Licitación Publicada con Éxito</h3>
-        <p><strong>Archivo:</strong> <span id="fileNameDisplay"></span></p>
-        <p>
-          <strong>Hash IPFS (CID):</strong>
-          <span
-            id="hashDisplay"
-            class="code-text"
-            style="color: #d9534f"
-          ></span>
-        </p>
-        <p>
-          <strong>Smart Contract Address:</strong>
-          <span
-            id="contractDisplay"
-            class="code-text"
-            style="color: #0056b3"
-          ></span>
-        </p>
-        <p>
-          <strong>Enlace de Verificación IPFS:</strong>
-          <a id="gatewayLink" href="#" target="_blank">Abrir Documento PDF</a>
-        </p>
-      </div>
     </div>
 
+    <!-- Modal de Registro para Contratistas -->
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fw-bold">Registro de Empresa Contratista</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="register-alert" class="alert alert-danger d-none" role="alert"></div>
+                    <form id="registerForm">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre de la Empresa</label>
+                            <input type="text" class="form-control" id="regName" required placeholder="Ej: Constructora del Litoral S.A.">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Correo Electrónico</label>
+                            <input type="email" class="form-control" id="regEmail" required placeholder="contacto@empresa.com">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="regPassword" required placeholder="••••••">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Dirección de Billetera (Wallet Address)</label>
+                            <input type="text" class="form-control" id="regWallet" required placeholder="0x...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Clave Privada (Para firma de transacciones en demo)</label>
+                            <input type="text" class="form-control" id="regKey" required placeholder="0x...">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2">Registrar Empresa</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Scripts de Autenticación y Registro -->
     <script>
-      // Lógica para agregar/quitar filas de hitos dinámicamente
-      document
-        .getElementById("addMilestoneBtn")
-        .addEventListener("click", function () {
-          const list = document.getElementById("milestonesList");
-          const newRow = document.createElement("div");
-          newRow.className = "milestone-row";
-          newRow.innerHTML = `
-            <input type="text" class="milestone-desc" placeholder="Descripción del hito" required>
-            <input type="number" class="milestone-amount" placeholder="Monto" step="0.01" min="0" required>
-            <button type="button" class="btn-remove" onclick="removeMilestone(this)">✕</button>
-        `;
-          list.appendChild(newRow);
-          updateRemoveButtons();
+        // Lógica de Login
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const alertBox = document.getElementById('error-alert');
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('¡Bienvenido ' + data.name + '! Rol: ' + data.role);
+                    // Redirección futura según el rol
+                    // window.location.href = data.role === 'GOBIERNO' ? '/admin-dashboard.html' : '/contractor-dashboard.html';
+                } else {
+                    alertBox.textContent = data.error || 'Error al iniciar sesión';
+                    alertBox.classList.remove('d-none');
+                }
+            } catch (err) {
+                console.error(err);
+                alertBox.textContent = 'Error de conexión con el servidor backend.';
+                alertBox.classList.remove('d-none');
+            }
         });
 
-      function removeMilestone(button) {
-        button.parentElement.remove();
-        updateRemoveButtons();
-      }
+        // Lógica de Registro de Contratistas
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const companyName = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const walletAddress = document.getElementById('regWallet').value;
+            const privateKey = document.getElementById('regKey').value;
+            const alertBox = document.getElementById('register-alert');
 
-      function updateRemoveButtons() {
-        const rows = document.querySelectorAll(".milestone-row");
-        rows.forEach((row) => {
-          const btn = row.querySelector(".btn-remove");
-          btn.style.display = rows.length > 1 ? "inline-block" : "none";
-        });
-      }
+            try {
+                const response = await fetch('/api/auth/register/contractor', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ companyName, email, password, walletAddress, privateKey })
+                });
 
-      // Envío del formulario completo al Backend
-      document
-        .getElementById("uploadForm")
-        .addEventListener("submit", async function (e) {
-          e.preventDefault();
+                const data = await response.json();
 
-          const fileInput = document.getElementById("pliegoFile");
-          const submitBtn = document.getElementById("submitBtn");
-          const resultBox = document.getElementById("resultBox");
-
-          if (fileInput.files.length === 0) return;
-
-          // 1. Extraer los hitos cargados en la interfaz
-          const hitos = [];
-          const rows = document.querySelectorAll(".milestone-row");
-
-          rows.forEach((row) => {
-            const descInput = row.querySelector(".milestone-desc");
-            const amountInput = row.querySelector(".milestone-amount");
-
-            if (descInput && amountInput && descInput.value.trim() !== "") {
-              hitos.push({
-                descripcion: descInput.value.trim(),
-                porcentaje: Math.round(parseFloat(amountInput.value) || 0), // Asegura que sea un número válido
-              });
+                if (response.ok) {
+                    alert('¡Empresa registrada con éxito! Ya puedes iniciar sesión.');
+                    location.reload();
+                } else {
+                    alertBox.textContent = data.error || 'Error al registrar la empresa';
+                    alertBox.classList.remove('d-none');
+                }
+            } catch (err) {
+                console.error(err);
+                alertBox.textContent = 'Error de conexión con el servidor backend.';
+                alertBox.classList.remove('d-none');
             }
-          });
-
-          console.log("Hitos a enviar al backend:", hitos); // Verificar en F12 -> Console
-
-          const formData = new FormData();
-          formData.append("file", fileInput.files[0]);
-
-          // Enviamos el array de hitos como un Blob JSON
-          const hitosJson = JSON.stringify(hitos);
-          formData.append(
-            "hitos",
-            new Blob([hitosJson], { type: "application/json" }),
-          );
-
-          submitBtn.disabled = true;
-          submitBtn.innerText =
-            "Procesando (IPFS + Deploying Smart Contract)...";
-          resultBox.style.display = "none";
-
-          try {
-            const response = await fetch(
-              "http://localhost:8082/api/pliegos/upload",
-              {
-                method: "POST",
-                body: formData,
-              },
-            );
-
-            const contentType = response.headers.get("content-type");
-            let data;
-
-            if (contentType && contentType.includes("application/json")) {
-              data = await response.json();
-            } else {
-              const textMessage = await response.text();
-              data = { error: textMessage };
-            }
-
-            if (response.ok) {
-              document.getElementById("fileNameDisplay").innerText =
-                data.fileName || fileInput.files[0].name;
-              document.getElementById("hashDisplay").innerText = data.ipfsHash;
-              document.getElementById("contractDisplay").innerText =
-                data.contractAddress;
-              document.getElementById("gatewayLink").href = data.gatewayUrl;
-
-              resultBox.style.display = "block";
-            } else {
-              const errorMsg =
-                data.error || data.message || JSON.stringify(data);
-              alert("Error en el servidor: " + errorMsg);
-            }
-          } catch (error) {
-            alert("Error de conexión con el backend: " + error.message);
-          } finally {
-            submitBtn.disabled = false;
-            submitBtn.innerText = "Publicar Licitación & Desplegar Contrato";
-          }
         });
     </script>
-  </body>
+</body>
 </html>
