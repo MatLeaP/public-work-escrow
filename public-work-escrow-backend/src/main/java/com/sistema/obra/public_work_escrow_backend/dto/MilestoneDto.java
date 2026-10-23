@@ -8,17 +8,19 @@ public class MilestoneDto {
     private Long porcentaje; 
     private Boolean completado;
     private Boolean aprobado;
+    private String ipfsHash;
 
     
     public MilestoneDto() {
     }
 
     
-    public MilestoneDto(String descripcion, Long porcentaje, Boolean completado, Boolean aprobado) {
+    public MilestoneDto(String descripcion, Long porcentaje, Boolean completado, Boolean aprobado, String ipfsHash) {
         this.descripcion = descripcion;
         this.porcentaje = porcentaje;
         this.completado = completado;
         this.aprobado = aprobado;
+        this.ipfsHash = ipfsHash;
     }
 
     

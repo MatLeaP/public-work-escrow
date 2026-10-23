@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BlockData - Dashboard Contratista</title>
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #f8f9fa;
+      }
+      .sidebar {
+        min-height: 100vh;
+        background: #212529;
+        color: white;
+      }
+      .card-custom {
+        border: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      }
+      .nav-link {
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Sidebar / Menú Lateral -->
+        <div class="col-md-3 col-lg-2 d-md-block sidebar collapse p-3">
+          <h4 class="text-white fw-bold py-3">🏗️ BlockData</h4>
+          <p class="text-white-50 small">Panel de Contratista</p>
+          <hr class="text-secondary" />
+          <ul class="nav flex-column">
+            <li class="nav-item mb-2">
+              <a
+                id="navAsignadas"
+                class="nav-link text-white active bg-primary rounded"
+                onclick="cambiarVista('asignadas')"
+                >📋 Obras Asignadas</a
+              >
+            </li>
+            <li class="nav-item mb-2">
+              <a
+                id="navDisponibles"
+                class="nav-link text-white-50"
+                onclick="cambiarVista('disponibles')"
+                >🏗️ Obras Disponibles</a
+              >
+            </li>
+            <li class="nav-item mt-4">
+              <button
+                onclick="cerrarSesion()"
+                class="btn btn-outline-danger w-100 btn-sm"
+              >
+                Cerrar Sesión
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Contenido Principal -->
+        <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+          <!-- Header Superior -->
+          <div
+            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
+          >
+            <h1 id="tituloVista" class="h2 fw-bold text-dark">
+              Obras Asignadas
+            </h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+              <span id="userInfo" class="badge bg-dark p-2 fs-6"
+                >Cargando usuario...</span
+              >
+            </div>
+          </div>
+
+          <!-- VISTA 1: OBRAS ASIGNADAS -->
+          <div id="vistaAsignadas">
+            <!-- Tarjetas de Resumen -->
+            <div class="row mb-4">
+              <div class="col-md-4">
+                <div class="card card-custom p-3 bg-white">
+                  <h6 class="text-muted">Obras Activas / Asignadas</h6>
+                  <h3 class="fw-bold text-primary" id="totalObrasAsignadas">
+                    0
+                  </h3>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card card-custom p-3 bg-white">
+                  <h6 class="text-muted">Billetera Vinculada</h6>
+                  <p class="text-truncate fw-semibold mb-0" id="walletDisplay">
+                    -
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card card-custom p-3 bg-white">
+                  <h6 class="text-muted">Estado Red Blockchain</h6>
+                  <span class="badge bg-success w-50 py-2 mt-1"
+                    >Conectado (Hardhat)</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Tabla Obras Asignadas -->
+            <div class="card card-custom mb-4">
+              <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">Contratos Adjudicados a su Empresa</h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Código</th>
+                        <th>Título</th>
+                        <th>Monto Total</th>
+                        <th>Contrato Smart Contract</th>
+                        <th>Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tablaObrasAsignadas">
+                      <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                          Cargando obras asignadas...
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- VISTA 2: OBRAS DISPONIBLES PARA OFERTAR -->
+          <div id="vistaDisponibles" style="display: none">
+            <div class="card card-custom mb-4">
+              <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">
+                  Licitaciones Públicas Abiertas para Ofertas
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Código</th>
+                        <th>Título</th>
+                        <th>Monto Total Presupuestado</th>
+                        <th>Pliego IPFS</th>
+                        <th>Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tablaObrasDisponibles">
+                      <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                          Cargando licitaciones disponibles...
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL DE HITOS Y SUBIDA DE DOCUMENTACIÓN -->
+    <div class="modal fade" id="modalHitos" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header bg-dark text-white">
+            <h5 class="modal-title fw-bold" id="modalHitosTitle">
+              Gestión de Hitos de la Obra
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <!-- Tabla de Hitos -->
+            <div class="table-responsive mb-4">
+              <table class="table table-bordered align-middle">
+                <thead class="table-secondary">
+                  <tr>
+                    <th># Hito</th>
+                    <th>Título / Descripción</th>
+                    <th>Monto / Porcentaje</th>
+                    <th>Estado</th>
+                    <th>Documento IPFS</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaHitosModal">
+                  <tr>
+                    <td colspan="5" class="text-center text-muted">
+                      Seleccione una obra para ver sus hitos.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="card bg-light p-3 border-0 shadow-sm">
+              <h6 class="fw-bold text-primary mb-3">
+                📂 Subir Evidencia / Documentación para Hito
+              </h6>
+              <form
+                id="formSubirHito"
+                onsubmit="enviarDocumentacionHito(event)"
+              >
+                <input type="hidden" id="obraIdActual" />
+                <div class="row">
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label small fw-bold"
+                      >Seleccionar Hito</label
+                    >
+                    <select
+                      id="selectHitoId"
+                      class="form-select form-select-sm"
+                      required
+                    >
+                      <option value="">-- Elija un hito --</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label small fw-bold"
+                      >Archivo de Evidencia (PDF / Doc)</label
+                    >
+                    <input
+                      type="file"
+                      id="archivoEvidencia"
+                      class="form-control form-control-sm"
+                      required
+                    />
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label small fw-bold"
+                      >Descripción del Avance</label
+                    >
+                    <input
+                      type="text"
+                      id="descripcionInput"
+                      class="form-control form-control-sm"
+                      placeholder="Detalle breve de los trabajos..."
+                      required
+                    />
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-success btn-sm px-4">
+                  Subir a IPFS y Enviar a Revisión
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      let currentUser = null;
+      let modalHitosInstance = null;
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const userStr = localStorage.getItem("user");
+        if (!userStr) {
+          alert("No hay sesión activa. Por favor inicie sesión.");
+          window.location.href = "/login.html";
+          return;
+        }
+
+        currentUser = JSON.parse(userStr);
+
+        if (currentUser.role !== "CONTRACTOR") {
+          alert("Acceso no autorizado para este rol.");
+          window.location.href = "/login.html";
+          return;
+        }
+
+        document.getElementById("userInfo").innerText =
+          `Empresa: ${currentUser.name}`;
+        document.getElementById("walletDisplay").innerText =
+          currentUser.walletAddress;
+
+        // Inicializar modal de Bootstrap
+        modalHitosInstance = new bootstrap.Modal(
+          document.getElementById("modalHitos"),
+        );
+
+        // Cargar datos iniciales
+        cargarObrasAsignadas();
+      });
+
+      // Cambiar entre pestañas de la barra lateral
+      function cambiarVista(vista) {
+        const navAsignadas = document.getElementById("navAsignadas");
+        const navDisponibles = document.getElementById("navDisponibles");
+        const vistaAsignadas = document.getElementById("vistaAsignadas");
+        const vistaDisponibles = document.getElementById("vistaDisponibles");
+        const tituloVista = document.getElementById("tituloVista");
+
+        if (vista === "asignadas") {
+          navAsignadas.classList.add("active", "bg-primary");
+          navAsignadas.classList.remove("text-white-50");
+          navDisponibles.classList.remove("active", "bg-primary");
+          navDisponibles.classList.add("text-white-50");
+
+          vistaAsignadas.style.display = "block";
+          vistaDisponibles.style.display = "none";
+          tituloVista.innerText = "Obras Asignadas";
+          cargarObrasAsignadas();
+        } else {
+          navDisponibles.classList.add("active", "bg-primary");
+          navDisponibles.classList.remove("text-white-50");
+          navAsignadas.classList.remove("active", "bg-primary");
+          navAsignadas.classList.add("text-white-50");
+
+          vistaDisponibles.style.display = "block";
+          vistaAsignadas.style.display = "none";
+          tituloVista.innerText = "Obras Disponibles para Ofertar";
+          cargarObrasDisponibles();
+        }
+      }
+
+      // Cargar obras asignadas al contratista
+      async function cargarObrasAsignadas() {
+        try {
+          // Usamos el ID del usuario logueado para traer solo lo suyo
+          const response = await fetch(
+            `http://localhost:8082/api/pliegos/contratista/${currentUser.id}/asignadas`,
+          );
+          if (!response.ok) throw new Error("Error al obtener obras asignadas");
+
+          const obras = await response.json();
+          const tbody = document.getElementById("tablaObrasAsignadas");
+          tbody.innerHTML = "";
+
+          if (obras.length === 0) {
+            document.getElementById("totalObrasAsignadas").innerText = 0;
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-3">No posee obras asignadas actualmente.</td></tr>`;
+            return;
+          }
+
+          document.getElementById("totalObrasAsignadas").innerText =
+            obras.length;
+
+          obras.forEach((obra) => {
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${obra.contractCode || "N/A"}</strong></td>
+                    <td>${obra.title}</td>
+                    <td>$ ${Number(obra.totalAmount || 0).toLocaleString()}</td>
+                    <td><small class="text-muted font-monospace">${obra.contractAddress ? obra.contractAddress.substring(0, 18) + "..." : "N/A"}</small></td>
+                    <td>
+                        <button class="btn btn-sm btn-dark" onclick="verHitos('${obra.contractAddress}', '${obra.title}')">Ver Hitos</button>
+                    </td>
+                </tr>
+                `;
+          });
+        } catch (err) {
+          console.error(err);
+          document.getElementById("tablaObrasAsignadas").innerHTML =
+            `<tr><td colspan="5" class="text-center text-danger py-3">Error al conectar con el servidor.</td></tr>`;
+        }
+      }
+
+      // Cargar obras disponibles para ofertar (Licitaciones abiertas)
+      async function cargarObrasDisponibles() {
+        try {
+          const tbody = document.getElementById("tablaObrasDisponibles");
+          tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-3">Cargando licitaciones y verificando ofertas anteriores...</td></tr>`;
+
+          const response = await fetch("http://localhost:8082/api/pliegos/all");
+          if (!response.ok)
+            throw new Error("Error al obtener datos de licitaciones");
+
+          const obras = await response.json();
+          tbody.innerHTML = "";
+
+          if (obras.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-3">No hay licitaciones disponibles en este momento.</td></tr>`;
+            return;
+          }
+
+          for (const obra of obras) {
+            let yaOferto = false;
+            if (obra.contractAddress) {
+              try {
+                const resOfertas = await fetch(
+                  `http://localhost:8082/api/licitaciones/${obra.contractAddress}/ofertas`,
+                );
+                if (resOfertas.ok) {
+                  const ofertas = await resOfertas.json();
+                  yaOferto = ofertas.some(
+                    (oferta) =>
+                      (oferta.contractor &&
+                        oferta.contractor.id === currentUser.id) ||
+                      oferta.contractorId === currentUser.id,
+                  );
+                }
+              } catch (e) {
+                console.warn(
+                  `No se pudieron verificar ofertas para el contrato ${obra.contractAddress}:`,
+                  e,
+                );
+              }
+            }
+
+            const botonAccion = yaOferto
+              ? `<span class="badge bg-secondary p-2">Oferta Presentada</span>`
+              : `<button class="btn btn-sm btn-success" onclick="enviarOferta(${obra.id})">Enviar Oferta / Postularse</button>`;
+
+            tbody.innerHTML += `
+              <tr>
+                <td><strong>${obra.contractCode || "N/A"}</strong></td>
+                <td>${obra.title}</td>
+                <td>$ ${Number(obra.totalAmount || 0).toLocaleString()}</td>
+                <td><a href="${obra.gatewayUrl || "#"}" target="_blank" class="btn btn-sm btn-outline-primary">Ver Pliego PDF</a></td>
+                <td>${botonAccion}</td>
+              </tr>
+            `;
+          }
+        } catch (err) {
+          console.error(err);
+          document.getElementById("tablaObrasDisponibles").innerHTML =
+            `<tr><td colspan="5" class="text-center text-danger py-3">Error al conectar con el servidor.</td></tr>`;
+        }
+      }
+
+      // --- FUNCIONES DE HITOS Y SUBIDA DE DOCUMENTOS ---
+
+      async function verHitos(contractAddress, obraTitulo) {
+        document.getElementById("modalHitosTitle").innerText =
+          `Hitos de la Obra: ${obraTitulo}`;
+        document.getElementById("obraIdActual").value = contractAddress;
+
+        const tbodyHitos = document.getElementById("tablaHitosModal");
+        const selectHito = document.getElementById("selectHitoId");
+
+        tbodyHitos.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-3">Cargando hitos desde la blockchain...</td></tr>`;
+        selectHito.innerHTML = `<option value="">-- Elija un hito --</option>`;
+
+        modalHitosInstance.show();
+
+        try {
+          const response = await fetch(
+            `http://localhost:8082/api/licitaciones/${contractAddress}/listaHitos`,
+          );
+          if (!response.ok) throw new Error("No se pudieron cargar los hitos.");
+
+          const hitos = await response.json();
+          tbodyHitos.innerHTML = "";
+
+          if (!hitos || hitos.length === 0) {
+            tbodyHitos.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-3">No hay hitos registrados para este contrato.</td></tr>`;
+            return;
+          }
+
+          hitos.forEach((hito, index) => {
+            // Usamos las propiedades exactas del DTO
+            const descripcion = hito.descripcion || `Hito #${index}`;
+            const porcentaje =
+              hito.porcentaje !== undefined ? hito.porcentaje : 0;
+
+            // Traducir los booleanos a un estado visual claro
+            let estadoTexto = "PENDIENTE";
+            let badgeClass = "bg-secondary";
+
+            if (hito.aprobado) {
+              estadoTexto = "APROBADO";
+              badgeClass = "bg-success";
+            } else if (hito.completado) {
+              estadoTexto = "EN REVISIÓN";
+              badgeClass = "bg-warning text-dark";
+            }
+
+            // Renderizar la fila de la tabla
+            tbodyHitos.innerHTML += `
+        <tr>
+          <td><strong>#${index}</strong></td>
+          <td>${descripcion}</td>
+          <td>${porcentaje} %</td>
+          <td><span class="badge ${badgeClass}">${estadoTexto}</span></td>
+          <td><small class="font-monospace text-muted">N/A</small></td>
+        </tr>
+      `;
+
+            // Cargar en el selector los hitos que aún no estén aprobados para poder enviar documentación
+            if (!hito.aprobado) {
+              selectHito.innerHTML += `<option value="${index}">Hito #${index}: ${descripcion} (${porcentaje}%)</option>`;
+            }
+          });
+        } catch (error) {
+          console.error(error);
+          tbodyHitos.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-3">Error al conectar con el servidor para obtener los hitos.</td></tr>`;
+        }
+      }
+
+      async function enviarDocumentacionHito(event) {
+        event.preventDefault();
+
+        const hitoId = document.getElementById("selectHitoId").value;
+        const archivoInput =
+          document.getElementById("archivoEvidencia").files[0];
+        const descripcionAvance =
+          document.getElementById("descripcionInput").value;
+        const contractAddress = document.getElementById("obraIdActual").value;
+
+        if (!hitoId || !archivoInput) {
+          alert("Por favor seleccione un hito y adjunte un archivo.");
+          return;
+        }
+
+        try {
+          const formData = new FormData();
+          formData.append("file", archivoInput);
+          formData.append("descripcionAvance", descripcionAvance);
+          formData.append("contractAddress", contractAddress);
+
+          // Una única llamada al endpoint completo que sube a IPFS y actualiza la base de datos
+          const response = await fetch(
+            `http://localhost:8082/api/licitaciones/${hitoId}/subir-evidencia`,
+            {
+              method: "POST",
+              body: formData, // El navegador gestiona el multipart automáticamente
+            },
+          );
+
+          const result = await response.json();
+          if (!response.ok) {
+            throw new Error(result.error || "Error al procesar la evidencia.");
+          }
+
+          alert(
+            "¡Evidencia subida a IPFS y enviada a revisión estatal con éxito!",
+          );
+
+          // Limpiar formulario y recargar la vista de hitos
+          document.getElementById("formSubirHito").reset();
+          verHitos(
+            contractAddress,
+            document
+              .getElementById("modalHitosTitle")
+              .innerText.replace("Hitos de la Obra: ", ""),
+          );
+        } catch (error) {
+          console.error(error);
+          alert("Error: " + error.message);
+        }
+      }
+
+      function cerrarSesion() {
+        localStorage.removeItem("user");
+        window.location.href = "/login.html";
+      }
+
+      function enviarOferta(id) {
+        window.location.href = `http://127.0.0.1:5500/public-work-escrow-backend/src/main/resources/static/presentar-oferta.html?obraId=${id}`;
+      }
+    </script>
+  </body>
+</html>

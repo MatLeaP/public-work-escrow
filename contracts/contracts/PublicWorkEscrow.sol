@@ -31,6 +31,7 @@ contract PublicWorkEscrow {
         uint256 porcentaje;
         bool completado;
         bool aprobado;
+        string ipfsHash;
     }
 
     struct Oferta {
@@ -100,7 +101,8 @@ contract PublicWorkEscrow {
                 descripcion: _hitosIniciales[i].descripcion,
                 porcentaje: _hitosIniciales[i].porcentaje,
                 completado: false,
-                aprobado: false
+                aprobado: false,
+                ipfsHash: ""
             }));
         }
 
@@ -155,36 +157,47 @@ contract PublicWorkEscrow {
         }
         require(sumaPorcentajes + _porcentaje <= 100, "La suma total de porcentajes no puede superar el 100%");
 
-        hitos.push(Milestone(_descripcion, _porcentaje, false, false));
+        
+        hitos.push(Milestone({
+            descripcion: _descripcion,
+            porcentaje: _porcentaje,
+            completado: false,
+            aprobado: false,
+            ipfsHash: ""
+        }));
     }
 
-    function marcarHitoCompletado(uint256 _indexHito) external soloAdjudicatario enEstado(State.EnEjecucion) {
+    function marcarHitoCompletado(uint256 _indexHito, string memory _ipfsHash) external soloAdjudicatario enEstado(State.EnEjecucion) {
         require(_indexHito < hitos.length, "Hito inexistente");
         hitos[_indexHito].completado = true;
+        hitos[_indexHito].ipfsHash = _ipfsHash;
 
         emit HitoCompletado(_indexHito);
     }
 
-    function aprobarYLiberarHito(uint256 _indexHito) external soloLicitante enEstado(State.EnEjecucion) {
-        require(_indexHito < hitos.length, "Hito inexistente");
-        Milestone storage hito = hitos[_indexHito];
-        
-        require(hito.completado, "El hito no fue marcado como completado");
-        require(!hito.aprobado, "El hito ya fue pagado");
+        function aprobarYLiberarHito(uint256 _indexHito, string memory _ipfsHash) external soloLicitante enEstado(State.EnEjecucion) {
+                require(_indexHito < hitos.length, "Hito inexistente");
+                Milestone storage hito = hitos[_indexHito];
+                
+                // 1. Forzamos/Marcamos el hito como completado en la blockchain
+                hito.completado = true; 
+                
+                require(!hito.aprobado, "El hito ya fue pagado");
 
-        // Calculo del monto en USDT a liberar según el porcentaje del monto adjudicado
-        uint256 montoAPagar = (ganador.montoAdjudicado * hito.porcentaje) / 100;
+                // 2. Asentamos el documento de aprobación
+                hito.ipfsHash = _ipfsHash;
 
-        require(usdtToken.balanceOf(address(this)) >= montoAPagar, "Fondos en USDT insuficientes en el contrato");
+                // 3. Cálculo de fondos y transferencia en USDT
+                uint256 montoAPagar = (ganador.montoAdjudicado * hito.porcentaje) / 100;
+                require(usdtToken.balanceOf(address(this)) >= montoAPagar, "Fondos en USDT insuficientes en el contrato");
 
-        hito.aprobado = true;
-        
-        // Transfiere los tokens USDT directamente al contratista
-        bool success = usdtToken.transfer(ganador.billeteraContratista != address(0) ? ganador.billeteraContratista : msg.sender, montoAPagar);
-        require(success, "Fallo la transferencia de USDT al contratista");
+                hito.aprobado = true;
+                
+                bool success = usdtToken.transfer(ganador.billeteraContratista != address(0) ? ganador.billeteraContratista : msg.sender, montoAPagar);
+                require(success, "Fallo la transferencia de USDT al contratista");
 
-        emit HitoAprobadoYPagado(_indexHito, montoAPagar, hito.porcentaje);
-    }
+                emit HitoAprobadoYPagado(_indexHito, montoAPagar, hito.porcentaje);
+            }
 
     function obtenerTodosLosHitos() external view returns  (Milestone[] memory){
 
@@ -197,7 +210,7 @@ contract PublicWorkEscrow {
      * @param _hashPropuesta Hash IPFS del documento de la propuesta
      */
     function presentarOferta(uint256 _montoTotal, string memory _hashPropuesta) external {
-        require(!yaOferto[msg.sender], "La empresa ya ha presentado una oferta");
+        //require(!yaOferto[msg.sender], "La empresa ya ha presentado una oferta");
         require(_montoTotal > 0, "El monto ofertado debe ser mayor a cero");
 
         ofertas.push(Oferta({
@@ -227,6 +240,19 @@ contract PublicWorkEscrow {
     }
 
 
-
+    // Función de lectura adaptada a tus estructuras reales
+    function getHito(uint256 index) public view returns (
+        string memory descripcion, 
+        uint256 porcentaje, 
+        bool completado, 
+        bool aprobado, 
+        string memory ipfsHash
+    ) {
+        require(index < hitos.length, "Indice de hito fuera de rango");
+        
+        Milestone memory h = hitos[index]; 
+        
+        return (h.descripcion, h.porcentaje, h.completado, h.aprobado, h.ipfsHash);
+    }
      
 }

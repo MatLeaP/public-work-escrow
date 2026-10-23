@@ -5,10 +5,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity 
 @Data 
+@Table(name = "contractors") // <--- Agrega esto para mantener el orden con ProcuringEntity
 public class Contractor {
 
     @Id
@@ -29,6 +31,4 @@ public class Contractor {
 
     @Column (nullable = false)
     private String privateKey;
-
-
 }

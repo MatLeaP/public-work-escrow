@@ -1,211 +1,349 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Presentación de Oferta - Licitación Pública</title>
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Bootstrap Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-</head>
-<body class="bg-light">
-
-  <div class="container py-5">
-    <div class="row justify-content-center">
-      <div class="col-lg-8">
-
-        <!-- Header Contextual -->
-        <div class="mb-4 text-center">
-          <h2 class="fw-bold text-dark">Licitación Pública</h2>
-          <p class="text-muted">Presentación digital de propuesta técnica y oferta económica</p>
-        </div>
-
-        <!-- Card Principal -->
-        <div class="card shadow-sm border-0 rounded-3">
-          <div class="card-header bg-primary text-white py-3">
-            <h5 class="card-title mb-0 d-flex align-items-center gap-2">
-              <i class="bi bi-file-earmark-arrow-up-fill"></i> Cargar Oferta de Contratista
-            </h5>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Presentación de Oferta - Licitación Pública</title>
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+  </head>
+  <body class="bg-light">
+    <div class="container py-5">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <!-- Header Contextual -->
+          <div class="mb-4 text-center">
+            <h2 class="fw-bold text-dark">Licitación Pública</h2>
+            <p class="text-muted">
+              Presentación digital de propuesta técnica y oferta económica
+            </p>
           </div>
 
-          <div class="card-body p-4">
-            
-            <!-- Alerta de Respuesta del Servidor -->
-            <div id="alertResultado" class="alert d-none" role="alert"></div>
+          <!-- Card Principal -->
+          <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-primary text-white py-3">
+              <h5 class="card-title mb-0 d-flex align-items-center gap-2">
+                <i class="bi bi-file-earmark-arrow-up-fill"></i> Cargar Oferta
+                de Contratista
+              </h5>
+            </div>
 
-            <form id="formOferta" class="needs-validation" novalidate>
+            <div class="card-body p-4">
+              <!-- Alerta de Respuesta del Servidor -->
+              <div id="alertResultado" class="alert d-none" role="alert"></div>
 
-              <!-- Dirección del Contrato Escrow -->
-              <div class="mb-3">
-                <label for="contractAddress" class="form-label fw-bold">Dirección de la Licitación (Contrato Escrow)</label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="bi bi-hash"></i></span>
-                  <input type="text" class="form-control font-monospace bg-light" id="contractAddress" 
-                         value="0xe7f1725e7734ce288f8367e1bb143e90bb3f0512" readonly required>
-                </div>
-              </div>
-
-              <!-- Monto Total de la Oferta -->
-              <div class="mb-3">
-                <label for="montoTotal" class="form-label fw-bold">Monto Presupuestado (USDT) <span class="text-danger">*</span></label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                  <input type="number" step="0.01" min="1" class="form-control" id="montoTotal" 
-                         placeholder="Ej: 150000.00" required>
-                  <span class="input-group-text">USDT</span>
-                  <div class="invalid-feedback">
-                    Ingresa un monto válido mayor a cero.
+              <form id="formOferta" class="needs-validation" novalidate>
+                <!-- Dirección del Contrato Escrow -->
+                <div class="mb-3">
+                  <label for="contractAddress" class="form-label fw-bold"
+                    >Dirección de la Licitación (Contrato Escrow)</label
+                  >
+                  <div class="input-group">
+                    <span class="input-group-text"
+                      ><i class="bi bi-hash"></i
+                    ></span>
+                    <input
+                      type="text"
+                      class="form-control font-monospace bg-light"
+                      id="contractAddress"
+                      placeholder="Cargando dirección de contrato desde la red..."
+                      readonly
+                      required
+                    />
+                  </div>
+                  <div class="form-text" id="contractStatusText">
+                    Resolviendo contrato inteligente asociado a la licitación...
                   </div>
                 </div>
-                <div class="form-text">Monto total presupuestado para ejecutar la totalidad de los hitos.</div>
-              </div>
 
-              <!-- Documentación Técnica (PDF / Propuesta) -->
-              <div class="mb-3">
-                <label for="archivoPropuesta" class="form-label fw-bold">Documentación Técnica / Pliego (PDF) <span class="text-danger">*</span></label>
-                <input type="file" class="form-control" id="archivoPropuesta" accept=".pdf" required>
-                <div class="invalid-feedback">
-                  Debes adjuntar el archivo PDF con la propuesta técnica.
+                <!-- Monto Total de la Oferta -->
+                <div class="mb-3">
+                  <label for="montoTotal" class="form-label fw-bold"
+                    >Monto Presupuestado (USDT)
+                    <span class="text-danger">*</span></label
+                  >
+                  <div class="input-group">
+                    <span class="input-group-text"
+                      ><i class="bi bi-currency-dollar"></i
+                    ></span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="1"
+                      class="form-control"
+                      id="montoTotal"
+                      placeholder="Ej: 150000.00"
+                      required
+                    />
+                    <span class="input-group-text">USDT</span>
+                    <div class="invalid-feedback">
+                      Ingresa un monto válido mayor a cero.
+                    </div>
+                  </div>
+                  <div class="form-text">
+                    Monto total presupuestado para ejecutar la totalidad de los
+                    hitos.
+                  </div>
                 </div>
-                <div class="form-text">
-                  El documento será procesado para generar su identificador/hash IPFS que se registrará en la blockchain.
+
+                <!-- Documentación Técnica (PDF / Propuesta) -->
+                <div class="mb-3">
+                  <label for="archivoPropuesta" class="form-label fw-bold"
+                    >Documentación Técnica / Pliego (PDF)
+                    <span class="text-danger">*</span></label
+                  >
+                  <input
+                    type="file"
+                    class="form-control"
+                    id="archivoPropuesta"
+                    accept=".pdf"
+                    required
+                  />
+                  <div class="invalid-feedback">
+                    Debes adjuntar el archivo PDF con la propuesta técnica.
+                  </div>
+                  <div class="form-text">
+                    El documento será procesado para generar su
+                    identificador/hash IPFS que se registrará en la blockchain.
+                  </div>
                 </div>
-              </div>
 
-              <hr class="my-4">
+                <hr class="my-4" />
 
-              <!-- Firma de Transacción / Clave Privada de la Empresa -->
-              <div class="mb-4">
-                <label for="privateKeyEmpresa" class="form-label fw-bold">Clave Privada de la Empresa (Firmante) <span class="text-danger">*</span></label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
-                  <input type="password" class="form-control font-monospace" id="privateKeyEmpresa" 
-                         placeholder="0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d" required>
-                  <button class="btn btn-outline-secondary" type="button" id="toggleKey">
-                    <i class="bi bi-eye"></i>
+                <!-- Firma de Transacción / Clave Privada de la Empresa -->
+                <div class="mb-4">
+                  <label for="privateKeyEmpresa" class="form-label fw-bold"
+                    >Clave Privada de la Empresa (Firmante)
+                    <span class="text-danger">*</span></label
+                  >
+                  <div class="input-group">
+                    <span class="input-group-text"
+                      ><i class="bi bi-key-fill"></i
+                    ></span>
+                    <input
+                      type="password"
+                      class="form-control font-monospace"
+                      id="privateKeyEmpresa"
+                      placeholder="0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
+                      required
+                    />
+                    <button
+                      class="btn btn-outline-secondary"
+                      type="button"
+                      id="toggleKey"
+                    >
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    <div class="invalid-feedback">
+                      Se requiere la clave privada para firmar la transacción en
+                      Hardhat / Blockchain.
+                    </div>
+                  </div>
+                  <div class="form-text">
+                    Esta clave firmará la ejecución de la función
+                    <code>presentarOferta</code>.
+                  </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="d-flex justify-content-end gap-2">
+                  <button type="reset" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle"></i> Limpiar
                   </button>
-                  <div class="invalid-feedback">
-                    Se requiere la clave privada para firmar la transacción en Hardhat / Blockchain.
-                  </div>
+                  <button
+                    type="submit"
+                    id="btnEnviar"
+                    class="btn btn-primary px-4"
+                  >
+                    <span
+                      id="spinner"
+                      class="spinner-border spinner-border-sm d-none"
+                      role="status"
+                    ></span>
+                    <i id="btnIcon" class="bi bi-send-fill"></i> Registrar
+                    Oferta en Blockchain
+                  </button>
                 </div>
-                <div class="form-text">Esta clave firmará la ejecución de la función <code>presentarOferta</code>.</div>
-              </div>
-
-              <!-- Botones de Acción -->
-              <div class="d-flex justify-content-end gap-2">
-                <button type="reset" class="btn btn-outline-secondary">
-                  <i class="bi bi-x-circle"></i> Limpiar
-                </button>
-                <button type="submit" id="btnEnviar" class="btn btn-primary px-4">
-                  <span id="spinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
-                  <i id="btnIcon" class="bi bi-send-fill"></i> Registrar Oferta en Blockchain
-                </button>
-              </div>
-
-            </form>
+              </form>
+            </div>
           </div>
         </div>
-
       </div>
     </div>
-  </div>
 
-  <!-- Script de Interacción y Envío -->
-  <script>
-    // Mostrar/Ocultar Clave Privada
-    document.getElementById('toggleKey').addEventListener('click', function () {
-      const input = document.getElementById('privateKeyEmpresa');
-      const icon = this.querySelector('i');
-      if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.replace('bi-eye', 'bi-eye-slash');
-      } else {
-        input.type = 'password';
-        icon.classList.replace('bi-eye-slash', 'bi-eye');
-      }
-    });
+    <!-- Script de Interacción y Envío -->
+    <script>
+      // 1. Al cargar la página, capturar el obraId de la URL y precargar datos
+      // 1. Al cargar la página, capturar el obraId de la URL y obtener el contractAddress dinámico
+      document.addEventListener("DOMContentLoaded", async function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const obraId = urlParams.get("obraId");
+        const contractInput = document.getElementById("contractAddress");
+        const contractStatusText =
+          document.getElementById("contractStatusText");
+        const btnEnviar = document.getElementById("btnEnviar");
 
-    // Envío del Formulario
-    const form = document.getElementById('formOferta');
-    const alertResultado = document.getElementById('alertResultado');
-    const btnEnviar = document.getElementById('btnEnviar');
-    const spinner = document.getElementById('spinner');
-    const btnIcon = document.getElementById('btnIcon');
-
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-
-      if (!form.checkValidity()) {
-        form.classList.add('was-validated');
-        return;
-      }
-
-      // Deshabilitar botón y activar spinner
-      btnEnviar.disabled = true;
-      spinner.classList.remove('d-none');
-      btnIcon.classList.add('d-none');
-      alertResultado.classList.add('d-none');
-
-      const contractAddress = document.getElementById('contractAddress').value.trim();
-      const montoTotalInput = parseFloat(document.getElementById('montoTotal').value);
-      const privateKeyEmpresa = document.getElementById('privateKeyEmpresa').value.trim();
-      const archivoPropuesta = document.getElementById('archivoPropuesta').files[0];
-
-      try {
-        // 1. Simulación o cálculo de Hash para el archivo IPFS (ejemplo: Qm...)
-        // En producción, aquí harías una subida previa del PDF a tu backend/IPFS para obtener el CID real
-        const hashPropuesta = "Qm" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-
-        // Convertir monto a unidades de USDT (6 decimales para USDT o BigInteger segun tu backend)
-        // Por ejemplo, si tu contrato toma directamente las unidades numéricas o Wei:
-        const montoEnUnidades = Math.round(montoTotalInput * 1000000); 
-
-        // 2. Armar el Request Body DTO
-        const payload = {
-          privateKeyEmpresa: privateKeyEmpresa,
-          montoTotal: montoEnUnidades,
-          hashPropuesta: hashPropuesta
-        };
-
-        // 3. Petición POST a Spring Boot
-        const response = await fetch(`http://localhost:8082/api/licitaciones/${contractAddress}/ofertas`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          alertResultado.className = 'alert alert-success mt-3';
-          alertResultado.innerHTML = `
-            <strong><i class="bi bi-check-circle-fill"></i> ¡Oferta presentada con éxito!</strong><br>
-            <small>Transacción confirmada en la red:</small><br>
-            <code class="text-break">${data.transactionHash || JSON.stringify(data)}</code>
-          `;
-          form.reset();
-          form.classList.remove('was-validated');
-        } else {
-          const errorText = await response.text();
-          throw new Error(errorText || 'Error al procesar la transacción');
+        // Si no hay un ID de obra en los parámetros de la URL, notificamos al usuario
+        if (!obraId) {
+          alert("⚠️ No se ha seleccionado ninguna licitación válida.");
+          contractInput.value = "";
+          contractInput.placeholder = "Error: Sin licitación seleccionada";
+          contractStatusText.innerHTML = `<span class="text-danger"><i class="bi bi-exclamation-octagon-fill"></i> No se puede presentar una oferta sin un ID de obra en la URL.</span>`;
+          btnEnviar.disabled = true;
+          return;
         }
 
-      } catch (error) {
-        alertResultado.className = 'alert alert-danger mt-3';
-        alertResultado.innerHTML = `<strong><i class="bi bi-exclamation-triangle-fill"></i> Error:</strong> ${error.message}`;
-      } finally {
-        alertResultado.classList.remove('d-none');
-        btnEnviar.disabled = false;
-        spinner.classList.add('d-none');
-        btnIcon.classList.remove('d-none');
-      }
-    });
-  </script>
+        try {
+          // Consultar el endpoint de la obra/pliego en Spring Boot
+          const response = await fetch(
+            `http://localhost:8082/api/pliegos/${obraId}`,
+          );
 
-  <!-- Bootstrap 5 JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+          if (!response.ok) {
+            throw new Error(
+              `Obra con ID #${obraId} no encontrada en el sistema.`,
+            );
+          }
+
+          const obra = await response.json();
+
+          // Validar y asignar la dirección de contrato inteligente devuelta por la base de datos/blockchain
+          if (obra.contractAddress) {
+            contractInput.value = obra.contractAddress;
+            contractStatusText.innerHTML = `<span class="text-success"><i class="bi bi-shield-check"></i> Contrato verificado en la red: <strong>${obra.title || "Licitación pública"}</strong></span>`;
+          } else {
+            throw new Error(
+              "Esta obra aún no tiene un contrato inteligente asignado/desplegado.",
+            );
+          }
+
+          // Actualizar el presupuesto de referencia en el placeholder si está disponible
+          if (obra.totalAmount) {
+            document.getElementById("montoTotal").placeholder =
+              `Presupuesto oficial: $ ${Number(obra.totalAmount).toLocaleString()}`;
+          }
+        } catch (err) {
+          console.error(
+            "Error al cargar la dirección del contrato dinámico:",
+            err,
+          );
+          contractInput.value = "";
+          contractInput.placeholder = "Error al resolver contrato";
+          contractStatusText.innerHTML = `<span class="text-danger"><i class="bi bi-exclamation-triangle-fill"></i> ${err.message}</span>`;
+          btnEnviar.disabled = true;
+        }
+      });
+
+      // Mostrar/Ocultar Clave Privada
+      document
+        .getElementById("toggleKey")
+        .addEventListener("click", function () {
+          const input = document.getElementById("privateKeyEmpresa");
+          const icon = this.querySelector("i");
+          if (input.type === "password") {
+            input.type = "text";
+            icon.classList.replace("bi-eye", "bi-eye-slash");
+          } else {
+            input.type = "password";
+            icon.classList.replace("bi-eye-slash", "bi-eye");
+          }
+        });
+
+      // Envío del Formulario
+      const form = document.getElementById("formOferta");
+      const alertResultado = document.getElementById("alertResultado");
+      const btnEnviar = document.getElementById("btnEnviar");
+      const spinner = document.getElementById("spinner");
+      const btnIcon = document.getElementById("btnIcon");
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (!form.checkValidity()) {
+          form.classList.add("was-validated");
+          return;
+        }
+
+        btnEnviar.disabled = true;
+        spinner.classList.remove("d-none");
+        btnIcon.classList.add("d-none");
+        alertResultado.classList.add("d-none");
+
+        const contractAddress = document
+          .getElementById("contractAddress")
+          .value.trim();
+        const montoTotalInput = parseFloat(
+          document.getElementById("montoTotal").value,
+        );
+        const privateKeyEmpresa = document
+          .getElementById("privateKeyEmpresa")
+          .value.trim();
+        const archivoPropuesta =
+          document.getElementById("archivoPropuesta").files[0];
+
+        try {
+          // 1. Recuperar el ID del contratista activo desde localStorage
+          const userStr = localStorage.getItem("user");
+          if (!userStr) {
+            throw new Error(
+              "No hay una sesión activa. Inicie sesión nuevamente.",
+            );
+          }
+          const currentUser = JSON.parse(userStr);
+          const contractorId = currentUser.id;
+
+          // 2. Empaquetar todos los datos incluyendo el contractorId
+          const formData = new FormData();
+          formData.append("file", archivoPropuesta);
+          formData.append("privateKeyEmpresa", privateKeyEmpresa);
+          formData.append("montoTotal", montoTotalInput);
+          formData.append("contractorId", contractorId); // 👈 ¡Parámetro obligatorio añadido!
+
+          const response = await fetch(
+            `http://localhost:8082/api/licitaciones/${contractAddress}/ofertas`,
+            {
+              method: "POST",
+              body: formData,
+            },
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            alertResultado.className = "alert alert-success mt-3";
+            alertResultado.innerHTML = `
+            <strong><i class="bi bi-check-circle-fill"></i> ¡Oferta presentada con éxito!</strong><br>
+            <small>Transacción confirmada en la red blockchain:</small><br>
+            <code class="text-break">${data.transactionHash || JSON.stringify(data)}</code>
+          `;
+            form.reset();
+            form.classList.remove("was-validated");
+          } else {
+            const errorText = await response.text();
+            throw new Error(
+              errorText || "Error al procesar la transacción en la red",
+            );
+          }
+        } catch (error) {
+          alertResultado.className = "alert alert-danger mt-3";
+          alertResultado.innerHTML = `<strong><i class="bi bi-exclamation-triangle-fill"></i> Error:</strong> ${error.message}`;
+        } finally {
+          alertResultado.classList.remove("d-none");
+          btnEnviar.disabled = false;
+          spinner.classList.add("d-none");
+          btnIcon.classList.remove("d-none");
+        }
+      });
+    </script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>

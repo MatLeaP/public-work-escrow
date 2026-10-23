@@ -106,16 +106,67 @@
       </p>
 
       <form id="uploadForm">
+        <!-- Código Único del Contrato -->
         <div class="form-group">
-          <label for="workName">Nombre de la Obra:</label>
+          <label for="contractCode">Código de Contrato / Obra:</label>
           <input
             type="text"
-            id="workName"
+            id="contractCode"
+            placeholder="Ej: BGT-2026-001"
+            required
+          />
+        </div>
+
+        <!-- Título de la Obra -->
+        <div class="form-group">
+          <label for="title">Título de la Obra:</label>
+          <input
+            type="text"
+            id="title"
             placeholder="Ej: Escuela N° 5 - Cimientos"
             required
           />
         </div>
 
+        <!-- Descripción detallada / Pliego -->
+        <div class="form-group">
+          <label for="description">Descripción Detallada:</label>
+          <textarea
+            id="description"
+            rows="3"
+            placeholder="Detalles complementarios del pliego o alcance de la obra..."
+            style="width: 100%; padding: 8px; box-sizing: border-box"
+          ></textarea>
+        </div>
+
+        <!-- Monto Total en Custodia -->
+        <div class="form-group">
+          <label for="totalAmount">Monto Total en Custodia (USD/USDT):</label>
+          <input
+            type="number"
+            id="totalAmount"
+            placeholder="Ej: 50000.00"
+            step="0.01"
+            min="0"
+            required
+          />
+        </div>
+
+        <!-- ID de la Entidad Compradora (ProcuringEntity) -->
+        <div class="form-group">
+          <label for="procuringEntityId"
+            >ID de la Entidad Gubernamental / Compradora:</label
+          >
+          <input
+            type="number"
+            id="procuringEntityId"
+            placeholder="Ej: 1"
+            min="1"
+            required
+          />
+        </div>
+
+        <!-- Archivo PDF del Pliego -->
         <div class="form-group">
           <label for="pliegoFile">Pliego Técnico (PDF):</label>
           <input
@@ -128,19 +179,22 @@
 
         <!-- SECCIÓN DINÁMICA DE HITOS -->
         <div class="milestones-container">
-          <label>Hitos de Obra (Etapas de liberación de fondos por porcentaje):</label>
+          <label
+            >Hitos de Obra (Etapas de liberación de fondos por
+            porcentaje):</label
+          >
           <div id="milestonesList">
             <div class="milestone-row">
               <input
                 type="text"
                 class="milestone-desc"
-                placeholder="Ej: Movimiento de suelos"
+                placeholder="Descripción del hito"
                 required
               />
               <input
                 type="number"
                 class="milestone-amount"
-                placeholder="Monto (USDT/ETH)"
+                placeholder="Porcentaje / Monto"
                 step="0.01"
                 min="0"
                 required
@@ -192,7 +246,24 @@
     </div>
 
     <script>
-      // Lógica para agregar/quitar filas de hitos dinámicamente
+      // 1. Cargar la sesión desde localStorage al inicio
+      let user = null;
+      document.addEventListener("DOMContentLoaded", function () {
+        const userStr = localStorage.getItem("user");
+        if (userStr) {
+          user = JSON.parse(userStr);
+
+          const procuringInput = document.getElementById("procuringEntityId");
+          if (procuringInput && user.id) {
+            procuringInput.value = user.id;
+          }
+        } else {
+          alert("No hay sesión activa.");
+          window.location.href = "/login.html";
+        }
+      });
+
+      // 2. Lógica para Agregar y Quitar Hitos dinámicamente
       document
         .getElementById("addMilestoneBtn")
         .addEventListener("click", function () {
@@ -200,10 +271,10 @@
           const newRow = document.createElement("div");
           newRow.className = "milestone-row";
           newRow.innerHTML = `
-            <input type="text" class="milestone-desc" placeholder="Descripción del hito" required>
-            <input type="number" class="milestone-amount" placeholder="Monto" step="0.01" min="0" required>
+            <input type="text" class="milestone-desc" placeholder="Descripción del hito" required />
+            <input type="number" class="milestone-amount" placeholder="Porcentaje / Monto" step="0.01" min="0" required />
             <button type="button" class="btn-remove" onclick="removeMilestone(this)">✕</button>
-        `;
+          `;
           list.appendChild(newRow);
           updateRemoveButtons();
         });
@@ -217,11 +288,13 @@
         const rows = document.querySelectorAll(".milestone-row");
         rows.forEach((row) => {
           const btn = row.querySelector(".btn-remove");
-          btn.style.display = rows.length > 1 ? "inline-block" : "none";
+          if (btn) {
+            btn.style.display = rows.length > 1 ? "inline-block" : "none";
+          }
         });
       }
 
-      // Envío del formulario completo al Backend
+      // 3. Envío del formulario completo al Backend
       document
         .getElementById("uploadForm")
         .addEventListener("submit", async function (e) {
@@ -233,7 +306,21 @@
 
           if (fileInput.files.length === 0) return;
 
-          // 1. Extraer los hitos cargados en la interfaz
+          const contractCode = document
+            .getElementById("contractCode")
+            .value.trim();
+          const title = document.getElementById("title").value.trim();
+          const description = document
+            .getElementById("description")
+            .value.trim();
+          const totalAmount = document
+            .getElementById("totalAmount")
+            .value.trim();
+
+          const procuringEntityId = user
+            ? user.id
+            : document.getElementById("procuringEntityId").value;
+
           const hitos = [];
           const rows = document.querySelectorAll(".milestone-row");
 
@@ -244,17 +331,19 @@
             if (descInput && amountInput && descInput.value.trim() !== "") {
               hitos.push({
                 descripcion: descInput.value.trim(),
-                porcentaje: Math.round(parseFloat(amountInput.value) || 0), // Asegura que sea un número válido
+                porcentaje: parseFloat(amountInput.value) || 0,
               });
             }
           });
 
-          console.log("Hitos a enviar al backend:", hitos); // Verificar en F12 -> Console
-
           const formData = new FormData();
           formData.append("file", fileInput.files[0]);
+          formData.append("contractCode", contractCode);
+          formData.append("title", title);
+          formData.append("description", description);
+          formData.append("totalAmount", totalAmount);
+          formData.append("procuringEntityId", procuringEntityId);
 
-          // Enviamos el array de hitos como un Blob JSON
           const hitosJson = JSON.stringify(hitos);
           formData.append(
             "hitos",
@@ -263,17 +352,14 @@
 
           submitBtn.disabled = true;
           submitBtn.innerText =
-            "Procesando (IPFS + Deploying Smart Contract)...";
+            "Procesando (IPFS + Despliegue Blockchain + Base de Datos)...";
           resultBox.style.display = "none";
 
           try {
-            const response = await fetch(
-              "http://localhost:8082/api/pliegos/upload",
-              {
-                method: "POST",
-                body: formData,
-              },
-            );
+            const response = await fetch("http://localhost:8082/api/pliegos/upload", {
+              method: "POST",
+              body: formData,
+            });
 
             const contentType = response.headers.get("content-type");
             let data;

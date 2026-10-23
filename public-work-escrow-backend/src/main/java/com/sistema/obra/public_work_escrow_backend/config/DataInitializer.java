@@ -42,7 +42,7 @@ public class DataInitializer {
                 contractorB.setEmail("info@obrasdelplata.com");
                 contractorB.setPassword("123456");
                 contractorB.setWalletAddress("0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC");
-                contractorB.setPrivateKey("0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a807cdad9054");
+                contractorB.setPrivateKey("0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a");
                 contractorRepo.save(contractorB);
             }
         };
