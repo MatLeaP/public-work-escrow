@@ -6,13 +6,7 @@ import org.web3j.abi.datatypes.generated.Uint256;
 
 import java.math.BigInteger;
 
-/**
- * Representa la estructura de Solidity:
- * struct Hito {
- *     string descripcion;
- *     uint256 monto;
- * }
- */
+
 public class HitoStruct extends DynamicStruct {
 
     public HitoStruct(String descripcion, BigInteger montoInWei) {

@@ -13,7 +13,6 @@ public class LoginResponse {
     private String walletAddress;
     private String message;
 
-    // Constructor explícito (sin trucos de Lombok, 100% compatible con cualquier versión de Java)
     public LoginResponse(Long id, String name, String email, String role, String walletAddress, String message) {
         this.id = id;
         this.name = name;

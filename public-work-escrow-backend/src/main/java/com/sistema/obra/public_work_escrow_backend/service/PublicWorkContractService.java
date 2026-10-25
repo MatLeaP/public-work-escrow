@@ -42,17 +42,15 @@ public class PublicWorkContractService {
             MultipartFile file,
             List<MilestoneDto> hitosDto) throws Exception {
 
-        // 1. Validar entidad compradora
+       
         ProcuringEntity procuringEntity = procuringEntityRepository.findById(procuringEntityId)
                 .orElseThrow(() -> new RuntimeException("Entidad compradora no encontrada."));
 
-        // 2. Subir PDF a IPFS
         String ipfsHash = ipfsService.uploadPliegoToIpfs(file);
 
-        // 3. LLAMAS A TU MÉTODO EXISTENTE DE BLOCKCHAIN PARA DESPLEGAR EL CONTRATO
+     
         String contractAddress = blockchainService.desplegarContratoLicitacion(ipfsHash, hitosDto);
 
-        // 4. Guardar en MySQL con la entidad y los hitos
         PublicWorkContract contract = new PublicWorkContract();
         contract.setContractCode(contractCode);
         contract.setTitle(title);
@@ -60,7 +58,7 @@ public class PublicWorkContractService {
         contract.setTotalAmount(totalAmount);
         contract.setStatus(PublicWorkContract.ContractStatus.ACTIVO);
         contract.setIpfsMetadataHash(ipfsHash);
-        contract.setBlockchainTxHash(contractAddress); // Aquí guardas la address devuelta por tu servicio blockchain
+        contract.setBlockchainTxHash(contractAddress); 
         contract.setProcuringEntity(procuringEntity);
         contract.setContractAddress(contractAddress);
 
@@ -68,7 +66,7 @@ public class PublicWorkContractService {
             for (int i = 0; i < hitosDto.size(); i++) {
                 MilestoneDto dto = hitosDto.get(i);
                 WorkMilestone milestone = new WorkMilestone();
-                milestone.setHitoIndex(i); // 👈 ¡Clave! Asignamos la posición exacta que coincide con la blockchain
+                milestone.setHitoIndex(i); 
                 milestone.setDescription(dto.getDescripcion());
                 milestone.setAmountOrPercentage(BigDecimal.valueOf(dto.getPorcentaje()));
                 contract.addMilestone(milestone);

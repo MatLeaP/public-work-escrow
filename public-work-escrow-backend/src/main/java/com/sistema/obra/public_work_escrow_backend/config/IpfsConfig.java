@@ -16,7 +16,7 @@ public class IpfsConfig {
 
     @Bean
     public IPFS ipfsClient() {
-        // Inicializa el cliente IPFS conectándose al nodo local/servidor en el puerto 5001
+        
         return new IPFS("/ip4/" + host + "/tcp/" + port);
     }
 }

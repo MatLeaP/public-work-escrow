@@ -213,7 +213,10 @@
               </table>
             </div>
 
-            <div class="card bg-light p-3 border-0 shadow-sm">
+            <!-- Contenedor dinámico para cuando la obra está completada al 100% -->
+            <div id="contenedorResumenObra"></div>
+
+            <div class="card bg-light p-3 border-0 shadow-sm mt-3">
               <h6 class="fw-bold text-primary mb-3">
                 📂 Subir Evidencia / Documentación para Hito
               </h6>
@@ -340,7 +343,6 @@
       // Cargar obras asignadas al contratista
       async function cargarObrasAsignadas() {
         try {
-          // Usamos el ID del usuario logueado para traer solo lo suyo
           const response = await fetch(
             `http://localhost:8082/api/pliegos/contratista/${currentUser.id}/asignadas`,
           );
@@ -451,7 +453,9 @@
 
         const tbodyHitos = document.getElementById("tablaHitosModal");
         const selectHito = document.getElementById("selectHitoId");
-
+        const contenedorResumen = document.getElementById("contenedorResumenObra");
+        
+        contenedorResumen.innerHTML = ""; // Limpiar resumen anterior
         tbodyHitos.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-3">Cargando hitos desde la blockchain...</td></tr>`;
         selectHito.innerHTML = `<option value="">-- Elija un hito --</option>`;
 
@@ -472,12 +476,17 @@
           }
 
           hitos.forEach((hito, index) => {
-            // Usamos las propiedades exactas del DTO
             const descripcion = hito.descripcion || `Hito #${index}`;
             const porcentaje =
               hito.porcentaje !== undefined ? hito.porcentaje : 0;
 
-            // Traducir los booleanos a un estado visual claro
+            const ipfs =
+              hito.ipfsHash && hito.ipfsHash.trim() !== ""
+                ? hito.ipfsHash
+                : hito.ipfs && hito.ipfs.trim() !== ""
+                  ? hito.ipfs
+                  : "N/A";
+
             let estadoTexto = "PENDIENTE";
             let badgeClass = "bg-secondary";
 
@@ -489,22 +498,35 @@
               badgeClass = "bg-warning text-dark";
             }
 
-            // Renderizar la fila de la tabla
             tbodyHitos.innerHTML += `
-        <tr>
-          <td><strong>#${index}</strong></td>
-          <td>${descripcion}</td>
-          <td>${porcentaje} %</td>
-          <td><span class="badge ${badgeClass}">${estadoTexto}</span></td>
-          <td><small class="font-monospace text-muted">N/A</small></td>
-        </tr>
-      `;
+              <tr>
+                <td><strong>#${index}</strong></td>
+                <td>${descripcion}</td>
+                <td>${porcentaje} %</td>
+                <td><span class="badge ${badgeClass}">${estadoTexto}</span></td>
+                <td><small class="font-monospace text-muted">${ipfs}</small></td>
+              </tr>
+            `;
 
-            // Cargar en el selector los hitos que aún no estén aprobados para poder enviar documentación
             if (!hito.aprobado) {
               selectHito.innerHTML += `<option value="${index}">Hito #${index}: ${descripcion} (${porcentaje}%)</option>`;
             }
           });
+
+          // Validación de obra completada al 100%[cite: 1]
+          const todosAprobados = hitos.length > 0 && hitos.every(h => h.aprobado);
+          if (todosAprobados) {
+            contenedorResumen.innerHTML = `
+              <div class="alert alert-success mt-4 text-center shadow-sm">
+                <h5 class="fw-bold">🎉 ¡Obra Completada al 100%!</h5>
+                <p class="mb-2">Todos los hitos han sido aprobados y los fondos liquidados en la blockchain.</p>
+                <button class="btn btn-dark btn-sm px-4" onclick="verResumenFinal('${contractAddress}')">
+                  📄 Ver Resumen y Auditoría Final
+                </button>
+              </div>
+            `;
+          }
+
         } catch (error) {
           console.error(error);
           tbodyHitos.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-3">Error al conectar con el servidor para obtener los hitos.</td></tr>`;
@@ -532,12 +554,11 @@
           formData.append("descripcionAvance", descripcionAvance);
           formData.append("contractAddress", contractAddress);
 
-          // Una única llamada al endpoint completo que sube a IPFS y actualiza la base de datos
           const response = await fetch(
             `http://localhost:8082/api/licitaciones/${hitoId}/subir-evidencia`,
             {
               method: "POST",
-              body: formData, // El navegador gestiona el multipart automáticamente
+              body: formData,
             },
           );
 
@@ -550,7 +571,6 @@
             "¡Evidencia subida a IPFS y enviada a revisión estatal con éxito!",
           );
 
-          // Limpiar formulario y recargar la vista de hitos
           document.getElementById("formSubirHito").reset();
           verHitos(
             contractAddress,
@@ -567,6 +587,30 @@
       function cerrarSesion() {
         localStorage.removeItem("user");
         window.location.href = "/login.html";
+      }
+
+      async function verResumenFinal(contractAddress) {
+        try {
+          const res = await fetch(
+            `http://localhost:8082/api/licitaciones/${contractAddress}/resumen-final`,
+          );
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Error al obtener el resumen.");
+
+          console.log("Resumen final de obra:", data);
+          alert(
+            `📄 REPORTE DE AUDITORÍA Y CIERRE DE OBRA\n\n` +
+            `• Estado Global: ${data.estadoGlobal}\n` +
+            `• Total Hitos: ${data.totalHitos}\n` +
+            `• Hitos Aprobados: ${data.hitosAprobados}\n` +
+            `• Avance: ${data.porcentajeAvance}%\n` +
+            `• Fecha: ${data.fechaGeneracion}\n\n` +
+            `¡Consola del navegador abierta para detalles inmutables detallados!`
+          );
+        } catch (err) {
+          console.error(err);
+          alert("❌ Error al obtener el resumen final: " + err.message);
+        }
       }
 
       function enviarOferta(id) {

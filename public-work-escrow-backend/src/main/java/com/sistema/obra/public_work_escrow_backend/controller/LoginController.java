@@ -30,7 +30,7 @@ public class LoginController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
 
-        // Validar si seleccionó Gobierno / Entidad Compradora
+        
         if ("PROCURING_ENTITY".equalsIgnoreCase(request.getRole())) {
             Optional<ProcuringEntity> entityOpt = procuringRepo.findByEmail(request.getEmail());
             if (entityOpt.isPresent() && entityOpt.get().getPassword().equals(request.getPassword())) {
@@ -46,7 +46,7 @@ public class LoginController {
                 return ResponseEntity.ok(response);
             }
         } 
-        // Validar si seleccionó Empresa Contratista
+      
         else if ("CONTRACTOR".equalsIgnoreCase(request.getRole())) {
             Optional<Contractor> contractorOpt = contractorRepo.findByEmail(request.getEmail());
             if (contractorOpt.isPresent() && contractorOpt.get().getPassword().equals(request.getPassword())) {

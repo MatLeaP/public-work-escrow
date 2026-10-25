@@ -4,9 +4,9 @@ import java.math.BigInteger;
 
 public class OfertaRequestDto {
 
-    private String privateKeyEmpresa; // Clave privada con la que la empresa firma la transacción
-    private BigInteger montoTotal;    // Monto total
-    private String hashPropuesta;     // Hash del documento o IPFS CID
+    private String privateKeyEmpresa; 
+    private BigInteger montoTotal;   
+    private String hashPropuesta;  
 
     // Constructor por defecto
     public OfertaRequestDto() {}

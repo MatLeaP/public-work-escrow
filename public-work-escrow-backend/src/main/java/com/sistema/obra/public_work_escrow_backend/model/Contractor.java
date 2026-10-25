@@ -10,7 +10,7 @@ import lombok.Data;
 
 @Entity 
 @Data 
-@Table(name = "contractors") // <--- Agrega esto para mantener el orden con ProcuringEntity
+@Table(name = "contractors") 
 public class Contractor {
 
     @Id

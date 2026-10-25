@@ -1,7 +1,10 @@
 package com.sistema.obra.public_work_escrow_backend.dto;
 
-import java.math.BigInteger;
 
+
+import lombok.Data;
+
+@Data 
 public class MilestoneDto {
 
     private String descripcion;
@@ -55,4 +58,6 @@ public class MilestoneDto {
     public void setAprobado(Boolean aprobado) {
         this.aprobado = aprobado;
     }
+
+    
 }

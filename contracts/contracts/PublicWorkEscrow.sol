@@ -16,13 +16,13 @@ contract PublicWorkEscrow {
 
     struct MilestoneInput {
         string descripcion;
-        uint256 porcentaje; // Porcentaje entero (ej: 20 para 20%)
+        uint256 porcentaje; 
     }
 
     struct DatosGanador {
         address billeteraContratista;
         string ipfsPropuestaHash;
-        uint256 montoAdjudicado; // Monto en unidades de USDT (ej: 100 USDT = 100_000_000)
+        uint256 montoAdjudicado; 
         uint256 fechaAdjudicacion;
     }
 
@@ -41,7 +41,7 @@ contract PublicWorkEscrow {
         uint256 timestamp;
     }
 
-    IERC20 public immutable usdtToken; // Dirección del contrato del Token USDT
+    IERC20 public immutable usdtToken;
     address public licitante;
     string public ipfsPliegoHash;
     State public estadoActual;
@@ -59,8 +59,9 @@ contract PublicWorkEscrow {
     event HitoAprobadoYPagado(uint256 indexHito, uint256 montoLiberado, uint256 porcentaje);
     // Evento que se emite cuando una empresa registra su oferta exitosamente
     event OfertaPresentada(address indexed contratista, uint256 montoTotal, string hashPropuesta);
+    event ObraCompletada(address indexed obraAddress, uint256 timestamp);
 
-    // Mapping para evitar que una misma empresa envíe más de una oferta por licitación
+    
     mapping(address => bool) public yaOferto;
 
     modifier soloLicitante() {
@@ -78,7 +79,7 @@ contract PublicWorkEscrow {
         _;
     }
 
-    // El constructor ahora recibe la direccion del token USDT
+   
     constructor(
         address _usdtTokenAddress,
         string memory _ipfsPliegoHash, 
@@ -142,8 +143,7 @@ contract PublicWorkEscrow {
         montoTotal = montoRequerido;
         estadoActual = State.EnEjecucion;
 
-        // Transfiere los USDT desde la billetera del Licitante hacia este Escrow
-        // (El licitante debe haber ejecutado usdt.approve(address(this), montoRequerido) antes)
+        
         bool success = usdtToken.transferFrom(msg.sender, address(this), montoRequerido);
         require(success, "Fallo el deposito de USDT");
     }
@@ -179,15 +179,15 @@ contract PublicWorkEscrow {
                 require(_indexHito < hitos.length, "Hito inexistente");
                 Milestone storage hito = hitos[_indexHito];
                 
-                // 1. Forzamos/Marcamos el hito como completado en la blockchain
+                
                 hito.completado = true; 
                 
                 require(!hito.aprobado, "El hito ya fue pagado");
 
-                // 2. Asentamos el documento de aprobación
+                
                 hito.ipfsHash = _ipfsHash;
 
-                // 3. Cálculo de fondos y transferencia en USDT
+                
                 uint256 montoAPagar = (ganador.montoAdjudicado * hito.porcentaje) / 100;
                 require(usdtToken.balanceOf(address(this)) >= montoAPagar, "Fondos en USDT insuficientes en el contrato");
 
@@ -197,6 +197,20 @@ contract PublicWorkEscrow {
                 require(success, "Fallo la transferencia de USDT al contratista");
 
                 emit HitoAprobadoYPagado(_indexHito, montoAPagar, hito.porcentaje);
+
+
+                bool todosAprobados = true;
+                    for (uint i = 0; i < hitos.length; i++) {
+                        if (!hitos[i].aprobado) {
+                            todosAprobados = false;
+                            break;  
+                        }
+                    }
+
+                    if (todosAprobados) {
+                        estadoActual = State.Finalizada; 
+                        emit ObraCompletada(address(this), block.timestamp);
+                    }
             }
 
     function obtenerTodosLosHitos() external view returns  (Milestone[] memory){
@@ -204,13 +218,9 @@ contract PublicWorkEscrow {
         return hitos;
     }
 
-        /**
-     * @notice Permite a una empresa contratista enviar su oferta
-     * @param _montoTotal Monto presupuestado por la empresa
-     * @param _hashPropuesta Hash IPFS del documento de la propuesta
-     */
+  
     function presentarOferta(uint256 _montoTotal, string memory _hashPropuesta) external {
-        //require(!yaOferto[msg.sender], "La empresa ya ha presentado una oferta");
+   
         require(_montoTotal > 0, "El monto ofertado debe ser mayor a cero");
 
         ofertas.push(Oferta({
@@ -225,22 +235,18 @@ contract PublicWorkEscrow {
         emit OfertaPresentada(msg.sender, _montoTotal, _hashPropuesta);
     }
 
-    /**
-     * @notice Devuelve la cantidad total de ofertas recibidas
-     */
+   
     function obtenerCantidadOfertas() external view returns (uint256) {
         return ofertas.length;
     }
 
-    /**
-     * @notice Devuelve el arreglo completo de ofertas para lectura desde Web3j
-     */
+
     function obtenerTodasLasOfertas() external view returns (Oferta[] memory) {
         return ofertas;
     }
 
 
-    // Función de lectura adaptada a tus estructuras reales
+    
     function getHito(uint256 index) public view returns (
         string memory descripcion, 
         uint256 porcentaje, 

@@ -15,7 +15,7 @@ public class DataInitializer {
     @Bean
     CommandLineRunner initDatabase(ProcuringEntityRepository procuringRepo, ContractorRepository contractorRepo) {
         return args -> {
-            // Precargar Entidad de Gobierno (Cuenta #0 de Hardhat)
+            
             if (procuringRepo.count() == 0) {
                 ProcuringEntity government = new ProcuringEntity();
                 government.setCompanyName("Gobierno de la Ciudad");
@@ -26,7 +26,7 @@ public class DataInitializer {
                 procuringRepo.save(government);
             }
 
-            // Precargar Empresa Contratista A (Cuenta #1 de Hardhat)
+            
             if (contractorRepo.count() == 0) {
                 Contractor contractorA = new Contractor();
                 contractorA.setCompanyName("Constructora Austral S.A.");
@@ -36,7 +36,7 @@ public class DataInitializer {
                 contractorA.setPrivateKey("0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d");
                 contractorRepo.save(contractorA);
 
-                // Precargar Empresa Contratista B (Cuenta #2 de Hardhat)
+                
                 Contractor contractorB = new Contractor();
                 contractorB.setCompanyName("Obras y Pavimentos del Plata");
                 contractorB.setEmail("info@obrasdelplata.com");

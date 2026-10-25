@@ -26,18 +26,18 @@ public class WorkMilestone {
     private int hitoIndex;
 
     @Column(nullable = false)
-    private String description; // Descripción del hito (ej: Movimiento de suelos)
+    private String description; 
 
     @Column(nullable = false)
-    private BigDecimal amountOrPercentage; // Monto o porcentaje asignado al hito
+    private BigDecimal amountOrPercentage; 
 
     @Column(name = "estado_revision")
     private String estadoRevision = "PENDIENTE";
 
     @Column(nullable = false)
-    private boolean completed = false; // Estado del hito (si ya fue liberado o no)
+    private boolean completed = false;
 
-    // Relación con el contrato de obra
+  
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "public_work_contract_id", nullable = false)
     private PublicWorkContract contract;
@@ -45,7 +45,7 @@ public class WorkMilestone {
     @Column(name = "document_ipfs_hash")
     private String documentIpfsHash;
 
-    // Constructores
+    
     public WorkMilestone() {
     }
 
@@ -56,7 +56,6 @@ public class WorkMilestone {
         this.completed = false;
     }
 
-    // Getters y Setters
     public Long getId() {
         return id;
     }

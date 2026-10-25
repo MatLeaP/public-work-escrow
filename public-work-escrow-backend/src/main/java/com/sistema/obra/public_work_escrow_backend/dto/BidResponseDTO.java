@@ -3,7 +3,7 @@ package com.sistema.obra.public_work_escrow_backend.dto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import lombok.AllArgsConstructor;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

@@ -47,10 +47,13 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class LicitacionBlockchainService {
@@ -72,7 +75,7 @@ public class LicitacionBlockchainService {
 
         public String desplegarContratoLicitacion(String ipfsPliegoHash, List<MilestoneDto> hitos) throws Exception {
 
-                // 1. Cargar Bytecode desde el JSON de Hardhat
+               
                 InputStream inputStream = new ClassPathResource("contracts/PublicWorkEscrow.json").getInputStream();
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode jsonNode = mapper.readTree(inputStream);
@@ -83,7 +86,7 @@ public class LicitacionBlockchainService {
                         bytecode = bytecode.substring(2);
                 }
 
-                // 2. Mapear DTOs a MilestoneInputStruct con porcentajes
+               
                 List<MilestoneInputStruct> hitosEVM = new ArrayList<>();
                 if (hitos != null && !hitos.isEmpty()) {
                         for (MilestoneDto hito : hitos) {
@@ -93,29 +96,28 @@ public class LicitacionBlockchainService {
                         }
                 }
 
-                // 3. Crear el DynamicArray codificable por Web3j
+                
                 DynamicArray<MilestoneInputStruct> dynamicArrayHitos = new DynamicArray<>(
                                 MilestoneInputStruct.class,
                                 hitosEVM);
 
-                // 4. Construir la lista con el tipo explícito List<Type> para evitar
-                // incompatibilidad de tipos
+              
                 List<Type> constructorArgs = new ArrayList<>();
-                constructorArgs.add(new Address(usdtTokenAddress)); // 1° Dirección de USDT
-                constructorArgs.add(new Utf8String(ipfsPliegoHash)); // 2° IPFS Hash
-                constructorArgs.add(dynamicArrayHitos); // 3° Hitos con porcentajes
+                constructorArgs.add(new Address(usdtTokenAddress)); 
+                constructorArgs.add(new Utf8String(ipfsPliegoHash)); 
+                constructorArgs.add(dynamicArrayHitos); 
 
                 String constructorEncoded = FunctionEncoder.encodeConstructor(constructorArgs);
 
-                // Si el bytecode no traía '0x', se lo agregamos
+             
                 String data = "0x" + bytecode + constructorEncoded;
 
-                // 5. Configurar Transacción
+                
                 TransactionManager txManager = new RawTransactionManager(web3j, credentials);
                 TransactionReceiptProcessor receiptProcessor = new PollingTransactionReceiptProcessor(web3j, 1000, 15);
                 ContractGasProvider gasProvider = new DefaultGasProvider();
 
-                // 6. Enviar Transacción a Hardhat/EVM
+              
                 EthSendTransaction response = txManager.sendTransaction(
                                 gasProvider.getGasPrice(),
                                 BigInteger.valueOf(8_000_000L),
@@ -127,7 +129,7 @@ public class LicitacionBlockchainService {
                         throw new RuntimeException("Error RPC de Web3j: " + response.getError().getMessage());
                 }
 
-                // 7. Esperar Confirmación de la Transacción
+              
                 TransactionReceipt receipt = receiptProcessor.waitForTransactionReceipt(response.getTransactionHash());
 
                 if (!receipt.isStatusOK()) {
@@ -143,10 +145,10 @@ public class LicitacionBlockchainService {
 
         public String obtenerIpfsHash(String contractAddress) throws Exception {
                 Function function = new Function(
-                                "ipfsPliegoHash", // Nombre del getter público o función en Solidity
-                                Collections.emptyList(), // Parámetros de entrada (ninguno)
+                                "ipfsPliegoHash", 
+                                Collections.emptyList(), 
                                 Collections.singletonList(new org.web3j.abi.TypeReference<Utf8String>() {
-                                }) // Tipo de retorno
+                                }) 
                 );
 
                 String encodedFunction = FunctionEncoder.encode(function);
@@ -188,7 +190,7 @@ public class LicitacionBlockchainService {
 
                 List<Type> results = FunctionReturnDecoder.decode(response.getValue(), function.getOutputParameters());
 
-                if (results.size() >= 5) { // Validamos que traiga los 5 campos
+                if (results.size() >= 5) { 
                         String descripcion = (String) results.get(0).getValue();
 
                         BigInteger porcentajeBigInt = (BigInteger) results.get(1).getValue();
@@ -196,7 +198,7 @@ public class LicitacionBlockchainService {
 
                         Boolean completado = (Boolean) results.get(2).getValue();
                         Boolean aprobado = (Boolean) results.get(3).getValue();
-                        String ipfsHash = (String) results.get(4).getValue(); // Capturamos el hash de IPFS
+                        String ipfsHash = (String) results.get(4).getValue();
 
                         return new MilestoneDto(descripcion, porcentaje, completado, aprobado, ipfsHash);
                 }
@@ -249,7 +251,7 @@ public class LicitacionBlockchainService {
                                         DynamicStruct struct = (DynamicStruct) obj;
                                         List<Type> componentes = struct.getValue();
 
-                                        // Validación defensiva según la cantidad de campos que devuelva la blockchain
+                                        
                                         String descripcion = "";
                                         BigInteger porcentaje = BigInteger.ZERO;
                                         Boolean completado = false;
@@ -268,7 +270,7 @@ public class LicitacionBlockchainService {
                                         if (componentes.size() > 3 && componentes.get(3) != null) {
                                                 aprobado = (Boolean) componentes.get(3).getValue();
                                         }
-                                        // Si el struct ya incluye el 5to campo (ipfsHash), lo leemos de forma segura
+                                      
                                         if (componentes.size() > 4 && componentes.get(4) != null) {
                                                 ipfsHash = (String) componentes.get(4).getValue();
                                         }
@@ -286,11 +288,11 @@ public class LicitacionBlockchainService {
                 return listaHitos;
         }
 
-        // Método para registrar la oferta firmada en el Smart Contract de la obra
+        
         public String registrarOfertaEnContrato(String contractAddress, String ipfsHash, BigDecimal montoTotal,
                         String privateKeyEmpresa) throws Exception {
 
-                // 1. Asignar credenciales de la empresa
+               
                 Credentials credsEmpresa = (privateKeyEmpresa != null && !privateKeyEmpresa.trim().isEmpty())
                                 ? Credentials.create(privateKeyEmpresa.trim())
                                 : this.credentials;
@@ -298,11 +300,11 @@ public class LicitacionBlockchainService {
                 String addressEmpresa = credsEmpresa.getAddress();
                 System.out.println(">>> Billetera firmante: " + addressEmpresa);
 
-                // 2. 🟢 FAUCET AUTOMÁTICO: Verificar si la billetera tiene saldo para gas en
-                // Hardhat
+               
+              
                 BigInteger balance = web3j.ethGetBalance(addressEmpresa, DefaultBlockParameterName.LATEST).send()
                                 .getBalance();
-                if (balance.compareTo(BigInteger.valueOf(100_000_000_000_000_000L)) < 0) { // Menos de 0.1 ETH
+                if (balance.compareTo(BigInteger.valueOf(100_000_000_000_000_000L)) < 0) { 
                         System.out.println(">>> [Faucet] Fondeando automáticamente la cuenta " + addressEmpresa
                                         + " con 1 ETH...");
                         TransactionManager mainTxManager = new RawTransactionManager(web3j, this.credentials);
@@ -311,11 +313,11 @@ public class LicitacionBlockchainService {
                                         DefaultGasProvider.GAS_LIMIT,
                                         addressEmpresa,
                                         "",
-                                        BigInteger.valueOf(1_000_000_000_000_000_000L) // 1 ETH
+                                        BigInteger.valueOf(1_000_000_000_000_000_000L) 
                         );
                 }
 
-                // 3. Garantizar que el monto sea un BigInteger positivo mayor a cero
+               
                 BigInteger montoInteger = montoTotal.setScale(0, RoundingMode.DOWN).toBigInteger();
                 if (montoInteger.compareTo(BigInteger.ZERO) <= 0) {
                         montoInteger = BigInteger.valueOf(montoTotal.longValue());
@@ -325,8 +327,8 @@ public class LicitacionBlockchainService {
                 System.out.println(">>> Monto enviado a Solidity (uint256): " + montoInteger);
                 System.out.println(">>> Hash IPFS enviado: " + ipfsHash);
 
-                // 4. Crear la llamada coincidiendo con los tipos de presentarOferta(uint256,
-                // string)
+                
+            
                 Function function = new Function(
                                 "presentarOferta",
                                 Arrays.asList(
@@ -369,10 +371,9 @@ public class LicitacionBlockchainService {
                         String ipfsPropuestaHash,
                         BigDecimal montoTotal) throws Exception {
 
-                // 1. Convertir el monto a BigInteger (unidades/wei según tu lógica)
+                
                 BigInteger montoInteger = montoTotal.toBigInteger();
 
-                // 2. Definir la función 'adjudicarGanador(address,string,uint256)'
                 Function function = new Function(
                                 "adjudicarGanador",
                                 Arrays.asList(
@@ -381,20 +382,20 @@ public class LicitacionBlockchainService {
                                                 new Uint256(montoInteger)),
                                 Collections.emptyList());
 
-                // 3. Codificar la función a HEX
+           
                 String encodedFunction = FunctionEncoder.encode(function);
 
-                // 4. Obtener las credenciales del Estado (licitante)
+              
                 Credentials credentials = Credentials.create(privateKeyEstado);
 
-                // 5. Obtener el Nonce de la cuenta
+              
                 EthGetTransactionCount ethGetTransactionCount = web3j.ethGetTransactionCount(
                                 credentials.getAddress(), DefaultBlockParameterName.LATEST).send();
                 BigInteger nonce = ethGetTransactionCount.getTransactionCount();
 
-                // 6. Configurar Gas y construir la RawTransaction
+           
                 BigInteger gasPrice = web3j.ethGasPrice().send().getGasPrice();
-                BigInteger gasLimit = BigInteger.valueOf(3_000_000); // Límite de gas estándar para Hardhat
+                BigInteger gasLimit = BigInteger.valueOf(3_000_000); 
 
                 RawTransaction rawTransaction = RawTransaction.createTransaction(
                                 nonce,
@@ -404,7 +405,6 @@ public class LicitacionBlockchainService {
                                 BigInteger.ZERO,
                                 encodedFunction);
 
-                // 7. Firmar y enviar la transacción
                 byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials);
                 String hexValue = Numeric.toHexString(signedMessage);
 
@@ -509,7 +509,7 @@ public class LicitacionBlockchainService {
                 BigInteger gasLimit = BigInteger.valueOf(3_000_000);
 
                 Function function = new Function(
-                                "aprobarYLiberarHito", // Nombre exacto en tu Smart Contract
+                                "aprobarYLiberarHito", 
                                 Arrays.asList(
                                                 new Uint256(hitoIndex),
                                                 new Utf8String(ipfsHash)),
@@ -530,5 +530,37 @@ public class LicitacionBlockchainService {
                 }
 
                 return ethSendTransaction.getTransactionHash();
+        }
+
+        public Map<String, Object> generarResumenObra(String contractAddress) throws Exception {
+               
+                List<MilestoneDto> hitos = obtenerTodosLosHitosDirecto(contractAddress);
+
+              
+                int totalHitos = hitos.size();
+
+                long hitosAprobados = hitos.stream()
+                                .filter(h -> h.getAprobado() != null && h.getAprobado())
+                                .count();
+
+                long hitosEnRevision = hitos.stream()
+                                .filter(h -> h.getCompletado() != null && h.getCompletado()
+                                                && (h.getAprobado() == null || !h.getAprobado()))
+                                .count();
+
+                boolean obraCompletada = (totalHitos > 0 && hitosAprobados == totalHitos);
+
+              
+                Map<String, Object> resumen = new HashMap<>();
+                resumen.put("contractAddress", contractAddress);
+                resumen.put("estadoGlobal", obraCompletada ? "COMPLETADA" : "EN_EJECUCION");
+                resumen.put("totalHitos", totalHitos);
+                resumen.put("hitosAprobados", hitosAprobados);
+                resumen.put("hitosEnRevision", hitosEnRevision);
+                resumen.put("porcentajeAvance", totalHitos > 0 ? (double) hitosAprobados / totalHitos * 100 : 0.0);
+                resumen.put("detalleHitos", hitos);
+                resumen.put("fechaGeneracion", LocalDateTime.now().toString());
+
+                return resumen;
         }
 }

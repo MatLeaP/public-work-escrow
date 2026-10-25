@@ -32,15 +32,15 @@ public class Bid {
     private LocalDateTime submissionDate;
 
     @Column(nullable = false)
-    private String status; // "PENDING", "ACCEPTED", "REJECTED"
+    private String status; 
 
-    // Relación bidireccional con la Obra (coincide con el mappedBy = "publicWorkContract")
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "public_work_contract_id", nullable = false)
     @JsonBackReference
     private PublicWorkContract publicWorkContract;
 
-    // Relación con la Empresa Contratista
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contractor_id", nullable = false)
     private Contractor contractor;

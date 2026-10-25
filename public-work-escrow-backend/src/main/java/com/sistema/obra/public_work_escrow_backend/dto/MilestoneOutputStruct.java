@@ -5,21 +5,20 @@ import org.web3j.abi.datatypes.DynamicStruct;
 import org.web3j.abi.datatypes.Utf8String;
 import org.web3j.abi.datatypes.generated.Uint256;
 
-
-
 public class MilestoneOutputStruct extends DynamicStruct {
 
     public Utf8String descripcion;
     public Uint256 porcentaje;
     public Bool completado;
     public Bool aprobado;
+    public Utf8String ipfsHash; 
 
-    
-    public MilestoneOutputStruct(Utf8String descripcion, Uint256 porcentaje, Bool completado, Bool aprobado) {
-        super(descripcion, porcentaje, completado, aprobado);
+    public MilestoneOutputStruct(Utf8String descripcion, Uint256 porcentaje, Bool completado, Bool aprobado, Utf8String ipfsHash) {
+        super(descripcion, porcentaje, completado, aprobado, ipfsHash); 
         this.descripcion = descripcion;
         this.porcentaje = porcentaje;
         this.completado = completado;
         this.aprobado = aprobado;
+        this.ipfsHash = ipfsHash; 
     }
 }

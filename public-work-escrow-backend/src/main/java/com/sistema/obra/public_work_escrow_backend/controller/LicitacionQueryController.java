@@ -1,6 +1,6 @@
 package com.sistema.obra.public_work_escrow_backend.controller;
 
-import com.sistema.obra.public_work_escrow_backend.dto.BidResponseDTO;
+
 import com.sistema.obra.public_work_escrow_backend.dto.MilestoneDto;
 import com.sistema.obra.public_work_escrow_backend.model.Bid;
 import com.sistema.obra.public_work_escrow_backend.model.Contractor;
@@ -126,26 +126,26 @@ public class LicitacionQueryController {
             @RequestParam("contractorId") Long contractorId,
             @RequestParam(name = "privateKeyEmpresa", required = false) String privateKeyEmpresa) {
         try {
-            // 1. Buscar la obra asociada a la dirección del contrato inteligente
+            
             PublicWorkContract contract = contractRepository.findByContractAddress(contractAddress)
                     .orElseThrow(
                             () -> new RuntimeException("Contrato no encontrado para la dirección: " + contractAddress));
 
-            // 2. Buscar la empresa contratista
+            
             Contractor contractor = contractorRepository.findById(contractorId)
                     .orElseThrow(() -> new RuntimeException("Empresa contratista no encontrada."));
 
-            // 3. Subir la propuesta técnica (PDF) a IPFS
+            
             String ipfsHash = ipfsService.uploadPropuestaToIpfs(proposalFile);
 
-            // Debug de parámetros recibidos antes de ir a Web3j
+            
             System.out.println(">>> PrivateKey recibida en Controller: [" + privateKeyEmpresa + "]");
 
-            // 4. Interactuar con Web3j / Smart Contract
+            
             String txHash = licitacionBlockchainService.registrarOfertaEnContrato(
                     contractAddress, ipfsHash, montoTotal, privateKeyEmpresa);
 
-            // 5. Instanciar y guardar la entidad Bid en la base de datos
+            
             Bid bid = new Bid();
             bid.setPublicWorkContract(contract);
             bid.setContractor(contractor);
@@ -298,20 +298,18 @@ public class LicitacionQueryController {
     @PostMapping("/{hitoIndex}/subir-evidencia")
     public ResponseEntity<?> subirEvidenciaContratista(
             @PathVariable int hitoIndex,
-            @RequestParam("contractAddress") String contractAddress, // 👈 Pasamos también la dirección del contrato
+            @RequestParam("contractAddress") String contractAddress, 
             @RequestParam("file") MultipartFile file,
             @RequestParam("descripcionAvance") String descripcion) {
         try {
-            // Buscamos el hito de forma segura combinando la dirección del contrato y su
-            // índice en la blockchain
             WorkMilestone hito = workMilestoneRepository
                     .findByContract_ContractAddressAndHitoIndex(contractAddress, hitoIndex)
                     .orElseThrow(() -> new RuntimeException("Hito no encontrado para el índice " + hitoIndex));
 
-            // 1. Subir archivo a IPFS
+            
             String ipfsHash = ipfsService.uploadPropuestaToIpfs(file);
 
-            // 2. Actualizar estado y hash en MySQL
+            
             hito.setDocumentIpfsHash(ipfsHash);
             hito.setEstadoRevision("EN_REVISION");
             workMilestoneRepository.save(hito);
@@ -343,13 +341,13 @@ public class LicitacionQueryController {
             int hitoIndex = hito.getHitoIndex();
             String ipfsHash = hito.getDocumentIpfsHash();
 
-            // 1. Ejecutar la transacción en la blockchain (Smart Contract) con la clave
-            // privada del Estado
+            
             String txHash = blockchainService.aprobarYCompletarHitoOnChain(contractAddress,
                     BigInteger.valueOf(hitoIndex), ipfsHash);
 
-            // 2. Actualizar el estado en la base de datos local
+            
             hito.setEstadoRevision("APROBADO");
+            hito.setCompleted(true);
             workMilestoneRepository.save(hito);
 
             Map<String, Object> response = new HashMap<>();
@@ -373,6 +371,17 @@ public class LicitacionQueryController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Collections.singletonMap("error", "Error al obtener hitos: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/{contractAddress}/resumen-final")
+    public ResponseEntity<?> obtenerResumenFinal(@PathVariable String contractAddress) {
+        try {
+            Map<String, Object> resumen = blockchainService.generarResumenObra(contractAddress);
+            return ResponseEntity.ok(resumen);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Error al generar el resumen: " + e.getMessage()));
         }
     }
 }

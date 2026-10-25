@@ -15,16 +15,12 @@ public class IpfsService {
     @Autowired
     private IPFS ipfsClient;
 
-    /**
-     * Sube el documento PDF del pliego a IPFS, lo ancla y retorna su Hash (CID).
-     */
+   
     public String uploadPliegoToIpfs(MultipartFile file) throws IOException {
         return uploadFileToIpfs(file);
     }
 
-    /**
-     * Sube el documento PDF de la propuesta técnica/oferta a IPFS, lo ancla y retorna su Hash (CID).
-     */
+   
     public String uploadPropuestaToIpfs(MultipartFile file) throws IOException {
         return uploadFileToIpfs(file);
     }

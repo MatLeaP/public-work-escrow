@@ -13,10 +13,10 @@ import java.util.Optional;
 @Repository
 public interface WorkMilestoneRepository extends JpaRepository<WorkMilestone, Long> {
 
-    // Buscar todos los hitos pertenecientes a un contrato específico por su ID
+
     List<WorkMilestone> findByContractId(Long contractId);
 
-    // Buscar hitos filtrados por su estado (completados o pendientes)
+ 
     List<WorkMilestone> findByCompleted(boolean completed);
 
     Optional<WorkMilestone> findByContract_ContractAddressAndHitoIndex(String contractAddress, int hitoIndex);
